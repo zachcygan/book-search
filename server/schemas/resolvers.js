@@ -4,7 +4,7 @@ const { signToken } = require('../utils/auth');
 const resolvers = {
   Query: {
     // Get a single user by ID or username
-    user: async (parent, { id, username }) => {
+    me: async (parent, { id, username }) => {
       try {
         const user = await User.findOne({
           $or: [{ _id: id }, { username: username }],
@@ -22,8 +22,9 @@ const resolvers = {
   },
   Mutation: {
     // Create a new user
-    createUser: async (parent, { input }) => {
+    addUser: async (parent, { input }) => {
       try {
+        console.log({input})
         const user = await User.create(input);
 
         if (!user) {
@@ -79,7 +80,7 @@ const resolvers = {
       }
     },
     // Delete a book from a user's `savedBooks`
-    deleteBook: async (parent, { bookId }, { user }) => {
+    removeBook: async (parent, { bookId }, { user }) => {
       try {
         const updatedUser = await User.findOneAndUpdate(
           { _id: user._id },

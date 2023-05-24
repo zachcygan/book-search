@@ -1,42 +1,31 @@
+const { AuthenticationError } = require('apollo-server-express');
 const { User } = require('../models');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
   Query: {
     // Get a single user by ID or username
-    me: async (parent, { id, username }) => {
-      try {
-        const user = await User.findOne({
-          $or: [{ _id: id }, { username: username }],
-        });
+    me: async (parent, args, context) => {
+      
+        if (context.user) {
+          const user = await User.findOne({
+            _id: context.user._id,
+          })
+          .select('-__v -password');
 
-        if (!user) {
-          throw new Error('User not found');
-        }
-
-        return user;
-      } catch (err) {
-        throw new Error(err.message);
-      }
+          return user
+        } 
+        throw new AuthenticationError('You need to be logged in!');
     },
   },
   Mutation: {
     // Create a new user
-    addUser: async (parent, { input }) => {
-      try {
-        console.log({input})
-        const user = await User.create(input);
-
-        if (!user) {
-          throw new Error('Something went wrong');
-        }
+    addUser: async (parent, args) => {
+        const user = await User.create(args);
 
         const token = signToken(user);
 
         return { token, user };
-      } catch (err) {
-        throw new Error(err.message);
-      }
     },
     // Login a user
     login: async (parent, { input }) => {

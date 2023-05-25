@@ -51,40 +51,28 @@ const resolvers = {
       }
     },
     // Save a book to a user's `savedBooks`
-    saveBook: async (parent, { input }, { user }) => {
-      try {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: user._id },
-          { $addToSet: { savedBooks: input } },
-          { new: true, runValidators: true }
-        );
-
-        if (!updatedUser) {
-          throw new Error("User not found");
-        }
-
-        return updatedUser;
-      } catch (err) {
-        throw new Error(err.message);
-      }
-    },
-    // Delete a book from a user's `savedBooks`
-    removeBook: async (parent, { bookId }, { user }) => {
-      try {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: user._id },
-          { $pull: { savedBooks: { bookId: bookId } } },
+    saveBook: async (parent, { input }, context) => {
+      if (context.user) {
+        const updatedUser = await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $push: { savedBooks: input }},
           { new: true }
         );
-
-        if (!updatedUser) {
-          throw new Error("User not found");
-        }
-
         return updatedUser;
-      } catch (err) {
-        throw new Error(err.message);
       }
+      throw new AuthenticationError('You need to be logged in!');
+    },
+    // Delete a book from a user's `savedBooks`
+    removeBook: async (parent, { bookId }, context) => {
+      if (context.user) {
+        const updatedUser = await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId }}},
+          { new: true }
+        );
+        return updatedUser;
+      }
+      throw new AuthenticationError('You need to be logged in!');
     },
   },
 };

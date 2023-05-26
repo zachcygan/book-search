@@ -27,7 +27,7 @@ When the site first launches, users will have the ability to search for books, b
 
 ## Deployed Application
 
-You can find the deployed application here: https://powerful-oasis-02592.herokuapp.com/
+You can find the deployed application here: https://stormy-refuge-72417.herokuapp.com/
 
 ## Screenshots
 
